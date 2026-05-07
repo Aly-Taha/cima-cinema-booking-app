@@ -10,6 +10,7 @@ import Cinemas from './pages/Cinemas';
 import CinemaDetails from './pages/CinemaDetails';
 import './styles/global.css';
 import Checkout from './pages/Checkout'; 
+import SeatSelection from './pages/SeatSelection';
 import AdminDashboard from './pages/AdminDashboard';
 
 // Protected route wrapper
@@ -100,6 +101,11 @@ function AppRoutes() {
       <Route path="/cinemas/:id" element={
         <ProtectedRoute>
           <AppLayout><CinemaDetails /></AppLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/seat-selection" element={
+        <ProtectedRoute>
+          <AppLayout><SeatSelection /></AppLayout>
         </ProtectedRoute>
       } />
       <Route path="/checkout" element={

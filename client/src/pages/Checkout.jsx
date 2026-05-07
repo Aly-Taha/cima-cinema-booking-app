@@ -15,6 +15,10 @@ function Checkout() {
     if (!state?.movie) navigate('/movies');
   }, [state, navigate]);
 
+  const selectedSeatsCount = state?.selectedSeats?.length || 1;
+  const pricePerTicket = 150;
+  const totalAmount = selectedSeatsCount * pricePerTicket;
+
   const handlePayment = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -23,7 +27,7 @@ function Checkout() {
     try {
       // 1. Create a Payment Intent with a random booking ID
       const bookingId = `BKG-${Math.floor(Math.random() * 10000)}`;
-      const intentResponse = await api.payments.createIntent(150, bookingId); // EGP 150 mock price
+      const intentResponse = await api.payments.createIntent(totalAmount, bookingId);
       
       // 2. Simulate processing time
       await new Promise(resolve => setTimeout(resolve, 2000));
@@ -64,11 +68,11 @@ function Checkout() {
             <h3>{state.movie.title}</h3>
             <div className="summary-details">
               <span>📍 {state.cinema.name} ({state.cinema.location})</span>
-              <span>⏰ {state.time} — 1 Standard Ticket</span>
+              <span>⏰ {state.time} — {selectedSeatsCount} Ticket{selectedSeatsCount > 1 ? 's' : ''} {state?.selectedSeats ? `(${state.selectedSeats.join(', ')})` : ''}</span>
             </div>
             <div className="summary-total">
               <span>Total to Pay:</span>
-              <span className="total-amount">150 EGP</span>
+              <span className="total-amount">{totalAmount} EGP</span>
             </div>
           </div>
 
@@ -92,7 +96,7 @@ function Checkout() {
             </div>
 
             <button type="submit" disabled={loading} className="pay-button">
-              {loading ? 'Processing Payment...' : 'Pay 150 EGP Securely'}
+              {loading ? 'Processing Payment...' : `Pay ${totalAmount} EGP Securely`}
             </button>
             
             <p style={{ fontSize: '11px', color: 'var(--text-muted)', textAlign: 'center', marginTop: '10px' }}>
