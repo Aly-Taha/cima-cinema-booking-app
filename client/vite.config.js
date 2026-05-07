@@ -8,7 +8,7 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': {
-        target: 'https://cima-production-e342.up.railway.app',
+        target: 'http://localhost:5001',
         changeOrigin: true,
       },
     },

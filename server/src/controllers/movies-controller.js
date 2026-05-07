@@ -3,15 +3,16 @@ const prisma = require('../config/db');
 // GET /api/movies
 const getMovies = async (req, res) => {
   try {
-    const { genre } = req.query;
+    const { genres } = req.query;
     
     const query = {
       where: {},
       orderBy: { rating: 'desc' }
     };
 
-    if (genre) {
-      query.where.genres = { has: genre };
+    if (genres) {
+      const genreList = genres.split(',').map(g => g.trim());
+      query.where.genres = { hasSome: genreList };
     }
 
     const movies = await prisma.movie.findMany(query);
