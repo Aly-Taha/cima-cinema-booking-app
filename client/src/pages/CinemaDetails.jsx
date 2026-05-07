@@ -119,7 +119,7 @@ function CinemaDetails() {
                       <button 
                         key={tIdx} 
                         className="cd-time-slot"
-                        onClick={() => navigate('/checkout', { state: { movie, cinema, time } })}
+                        onClick={() => navigate('/seat-selection', { state: { movie, cinema, time } })}
                       >
                         {time}
                       </button>
