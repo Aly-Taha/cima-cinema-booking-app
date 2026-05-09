@@ -89,7 +89,18 @@ model Showtime {
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
+seatHolds SeatHold[]
   @@index([cinemaId])
   @@index([movieId])
+}
+model SeatHold {
+  id          String   @id @default(uuid())
+  showtimeId  String
+  seatNumber  String
+  expiresAt   DateTime
+
+  showtime    Showtime @relation(fields: [showtimeId], references: [id])
+
+  // This unique constraint prevents database-level double booking
+  @@unique([showtimeId, seatNumber]) 
 }
