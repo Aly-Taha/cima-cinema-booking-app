@@ -70,7 +70,7 @@ const getCinemaById = async (req, res) => {
         };
         moviesPlaying.push(moviesMap[st.movieId]);
       }
-      moviesMap[st.movieId].times.push(st.time);
+      moviesMap[st.movieId].times.push({ id: st.id, time: st.time });
     });
 
     res.json({ cinema, moviesPlaying });

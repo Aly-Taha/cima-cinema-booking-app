@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import api from '../services/api';
 
@@ -11,10 +11,44 @@ function Checkout() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [timeLeft, setTimeLeft] = useState(600);
+  const [clientSecret, setClientSecret] = useState(null);
+  const [bookingId, setBookingId] = useState(null);
+  const [intentLoading, setIntentLoading] = useState(true);
+  const hasInitialized = useRef(false);
+
+  const selectedSeatsCount = state?.selectedSeats?.length || 1;
+  const pricePerTicket = 150;
+  const totalAmount = selectedSeatsCount * pricePerTicket;
+
   // If someone manually types /checkout in the URL without selecting a movie, kick them back
   useEffect(() => {
-    if (!state?.movie) navigate('/movies');
-  }, [state, navigate]);
+    if (!state?.movie || !state?.showtimeId) {
+      navigate('/movies');
+      return;
+    }
+
+    // Guard against React StrictMode double-invoke
+    if (hasInitialized.current) return;
+    hasInitialized.current = true;
+
+    const initPayment = async () => {
+      try {
+        const newBookingId = `BKG-${Math.floor(Math.random() * 10000)}`;
+        setBookingId(newBookingId);
+        
+        const intentResponse = await api.payments.createIntent(totalAmount, newBookingId, state.showtimeId, state.selectedSeats);
+        setClientSecret(intentResponse.clientSecret);
+      } catch (err) {
+        alert(err.message || 'One or more of your selected seats were just taken. Please select different seats.');
+        navigate(-1);
+      } finally {
+        setIntentLoading(false);
+      }
+    };
+    
+    initPayment();
+  }, [state, navigate, totalAmount]);
+
   useEffect(() => {
     if (timeLeft <= 0) {
       alert("Your seat hold has expired! The seats have been released.");
@@ -35,25 +69,20 @@ function Checkout() {
     const s = seconds % 60;
     return `${m}:${s < 10 ? '0' : ''}${s}`;
   };
-  const selectedSeatsCount = state?.selectedSeats?.length || 1;
-  const pricePerTicket = 150;
-  const totalAmount = selectedSeatsCount * pricePerTicket;
 
   const handlePayment = async (e) => {
     e.preventDefault();
+    if (!clientSecret || !bookingId) return;
+    
     setLoading(true);
     setError('');
 
     try {
-      // 1. Create a Payment Intent with a random booking ID
-      const bookingId = `BKG-${Math.floor(Math.random() * 10000)}`;
-      const intentResponse = await api.payments.createIntent(totalAmount, bookingId, state.showtimeId, state.selectedSeats);
-      
-      // 2. Simulate processing time
+      // Simulate processing time
       await new Promise(resolve => setTimeout(resolve, 2000));
       
-      // 3. Confirm the payment
-      await api.payments.confirm(intentResponse.clientSecret, bookingId);
+      // Confirm the payment
+      await api.payments.confirm(clientSecret, bookingId);
       
       setSuccess(true);
       // Kick to home after showing success message

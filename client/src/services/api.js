@@ -102,10 +102,13 @@ const api = {
 
   // Payments endpoints (SCRUM-51)
   payments: {
-    createIntent(amount, bookingId) {
+    getHeldSeats(showtimeId) {
+      return api.request(`/payments/held-seats/${showtimeId}`);
+    },
+    createIntent(amount, bookingId, showtimeId, selectedSeats) {
       return api.request('/payments/create-intent', {
         method: 'POST',
-        body: JSON.stringify({ amount, bookingId }),
+        body: JSON.stringify({ amount, bookingId, showtimeId, selectedSeats }),
       });
     },
     confirm(paymentIntentId, bookingId) {

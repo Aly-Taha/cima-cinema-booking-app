@@ -115,13 +115,13 @@ function CinemaDetails() {
                 <div className="cd-showtimes-group">
                   <h4>Available Times</h4>
                   <div className="cd-times-grid">
-                    {movie.times.map((time, tIdx) => (
+                    {movie.times.map((timeObj, tIdx) => (
                       <button 
                         key={tIdx} 
                         className="cd-time-slot"
-                        onClick={() => navigate('/seat-selection', { state: { movie, cinema, time } })}
+                        onClick={() => navigate('/seat-selection', { state: { movie, cinema, time: timeObj.time, showtimeId: timeObj.id } })}
                       >
-                        {time}
+                        {timeObj.time}
                       </button>
                     ))}
                   </div>
