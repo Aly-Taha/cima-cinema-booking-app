@@ -1,13 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const { createPaymentIntent, confirmBooking, getHeldSeats } = require('../controllers/payments-controller');
-const { authMiddleware } = require('../middleware/auth-middleware');
 
-// Public route - anyone can check which seats are held
+// Public routes
 router.get('/held-seats/:showtimeId', getHeldSeats);
-
-// Protected routes - user must be logged in to pay
-router.post('/create-intent', authMiddleware, createPaymentIntent);
-router.post('/confirm', authMiddleware, confirmBooking);
+router.post('/create-intent', createPaymentIntent);
+router.post('/confirm', confirmBooking);
 
 module.exports = router;
