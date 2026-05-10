@@ -76,7 +76,7 @@ const getMovieById = async (req, res) => {
         };
         groupedShowtimes.push(cinemaMap[st.cinemaId]);
       }
-      cinemaMap[st.cinemaId].times.push(st.time);
+      cinemaMap[st.cinemaId].times.push({ id: st.id, time: st.time });
     });
 
     res.json({ 

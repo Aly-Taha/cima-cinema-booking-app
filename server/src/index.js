@@ -33,3 +33,10 @@ app.get('/api/health', (req, res) => {
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`🎬 Cima server running on http://0.0.0.0:${PORT}`);
 });
+setInterval(() => {}, 1000 * 60 * 60);
+process.on('unhandledRejection', (err) => {
+  console.error('Unhandled Rejection:', err);
+});
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught Exception:', err);
+}); 

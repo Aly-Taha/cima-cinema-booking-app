@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import api from '../services/api';
 import './SeatSelection.css';
 
 const ROWS = ['A', 'B', 'C', 'D', 'E', 'F'];
@@ -11,37 +12,31 @@ function SeatSelection() {
   const navigate = useNavigate();
   const [reservedSeats, setReservedSeats] = useState([]);
   const [selectedSeats, setSelectedSeats] = useState([]);
+  const [loadingSeats, setLoadingSeats] = useState(true);
 
   useEffect(() => {
-    if (!state?.movie) {
+    if (!state?.movie || !state?.showtimeId) {
       navigate('/movies');
       return;
     }
 
-    // Generate deterministic random reserved seats based on showtime ID or time
-    // For demo purposes, we seed it with a simple hash of time string
-    const seedString = `${state.cinema.id}-${state.time}`;
-    let hash = 0;
-    for (let i = 0; i < seedString.length; i++) {
-      hash = (hash << 5) - hash + seedString.charCodeAt(i);
-      hash |= 0;
-    }
-    
-    // Pseudo-random generator using the hash
-    const pseudoRandom = () => {
-      hash = Math.sin(hash) * 10000;
-      return hash - Math.floor(hash);
-    };
+    let isMounted = true;
+    setLoadingSeats(true);
 
-    const mockReserved = [];
-    ROWS.forEach(row => {
-      for (let i = 1; i <= SEATS_PER_ROW; i++) {
-        if (pseudoRandom() < 0.25) { // 25% chance a seat is reserved
-          mockReserved.push(`${row}${i}`);
-        }
-      }
-    });
-    setReservedSeats(mockReserved);
+    api.payments.getHeldSeats(state.showtimeId)
+      .then(data => {
+        if (isMounted) setReservedSeats(data.heldSeats || []);
+      })
+      .catch(err => {
+        console.error('Failed to fetch held seats:', err);
+        // Fall back to empty — user can still select seats
+        if (isMounted) setReservedSeats([]);
+      })
+      .finally(() => {
+        if (isMounted) setLoadingSeats(false);
+      });
+
+    return () => { isMounted = false; };
   }, [state, navigate]);
 
   if (!state?.movie) return null;
@@ -69,6 +64,7 @@ function SeatSelection() {
         movie: state.movie,
         cinema: state.cinema,
         time: state.time,
+        showtimeId: state.showtimeId,
         selectedSeats
       }
     });
@@ -86,6 +82,11 @@ function SeatSelection() {
       <div className="ss-screen-container">
         <div className="ss-screen">SCREEN</div>
         
+        {loadingSeats ? (
+          <div style={{ display: 'flex', justifyContent: 'center', padding: '3rem' }}>
+            <div className="spinner" style={{ width: 40, height: 40, borderWidth: 4 }}></div>
+          </div>
+        ) : (
         <div className="ss-grid">
           {ROWS.map(row => (
             <div key={row} className="ss-row">
@@ -117,6 +118,7 @@ function SeatSelection() {
             </div>
           ))}
         </div>
+        )}
       </div>
 
       <div className="ss-legend">

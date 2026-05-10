@@ -129,15 +129,15 @@ function MovieDetails() {
                         <p>📍 {cinema.location}</p>
                       </div>
                       <div className="md-times-grid">
-                        {cinema.times.map((time, tIdx) => (
+                        {cinema.times.map((timeObj, tIdx) => (
                          <button 
                          key={tIdx} 
                          className="md-time-slot"
                          onClick={() => navigate('/seat-selection', { 
-                           state: { movie, cinema, time } 
+                           state: { movie, cinema, time: timeObj.time, showtimeId: timeObj.id } 
                          })}
                        >
-                         {time}
+                         {timeObj.time}
                        </button>
                         ))}
                       </div>
